@@ -78,9 +78,14 @@ server.3=zookeeper-follower2:2888:3888
 Asegúrate de reemplazar `zookeeper-leader`, `zookeeper-follower1` y `zookeeper-follower2` con los nombres de host o las direcciones IP de tus contenedores respectivos. Ajusta los puertos `2888` y `3888` si es necesario.
 
 Paso 2: Establecer identificadores únicos para cada nodo
-En cada archivo `myid` dentro de la carpeta de datos de ZooKeeper (`/var/lib/zookeeper`), debes establecer un identificador único para cada nodo. Crea un archivo llamado `myid` en cada contenedor y escribe un número único para cada nodo (por ejemplo, `1` para el líder, `2` para el seguidor1, `3` para el seguidor2).
+En cada archivo `myid` dentro de la carpeta de datos de ZooKeeper (`/data/myid`), debes establecer un identificador único para cada nodo. En el archivo llamado `myid` en cada contenedor, escribe un número único para cada nodo (por ejemplo, `1` para el líder, `2` para el seguidor1, `3` para el seguidor2).
 
 Paso 3: Reiniciar los contenedores
+
+docker restart zookeeper-leader
+docker restart zookeeper-follower1
+docker restart zookeeper-follower2
+
 Después de realizar las configuraciones anteriores, debes reiniciar los contenedores de ZooKeeper para que carguen las nuevas configuraciones.
 
 Paso 4: Monitorear el clúster ZooKeeper
