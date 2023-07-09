@@ -59,10 +59,16 @@ Paso 1: Configurar los archivos de configuración
 Debes crear un archivo de configuración llamado `zoo.cfg` en cada uno de los contenedores de ZooKeeper (tanto el líder como los seguidores). Puedes utilizar el siguiente contenido como ejemplo:
 
 ```
+dataDir=/data
+dataLogDir=/datalog
 tickTime=2000
-initLimit=10
-syncLimit=5
-dataDir=/var/lib/zookeeper
+initLimit=5
+syncLimit=2
+autopurge.snapRetainCount=3
+autopurge.purgeInterval=0
+maxClientCnxns=60
+standaloneEnable=true
+admin.enableServer=true
 clientPort=2181
 server.1=zookeeper-leader:2888:3888
 server.2=zookeeper-follower1:2888:3888
