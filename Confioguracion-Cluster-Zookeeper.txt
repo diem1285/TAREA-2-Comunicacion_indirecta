@@ -1,0 +1,118 @@
+Para utilizar ZooKeeper en Docker para controlar nodos líder y seguidor, puedes seguir estos pasos:
+
+Paso 1: Instalar Docker
+AYa esta instalado
+
+Paso 2: Descargar la imagen de ZooKeeper
+Abre una terminal o línea de comandos y ejecuta el siguiente comando para descargar la imagen de ZooKeeper desde Docker Hub:
+
+```
+docker pull zookeeper
+```
+
+Paso 3: Crear una red de Docker
+Crea una red de Docker para permitir que los contenedores de ZooKeeper se comuniquen entre sí. Ejecuta el siguiente comando:
+
+```
+docker network create zookeeper-net
+```
+
+Paso 4: Ejecutar los contenedores de ZooKeeper
+A continuación, ejecuta los contenedores de ZooKeeper. Puedes ejecutar un contenedor para el nodo líder y varios contenedores para los nodos seguidores.
+
+Para el nodo líder, ejecuta el siguiente comando:
+
+```
+docker run --name zookeeper-leader --network zookeeper-net -p 2181:2181 -d zookeeper
+```
+
+Este comando ejecuta un contenedor llamado "zookeeper-leader" en la red "zookeeper-net" y expone el puerto 2181 del contenedor al puerto 2181 del host.
+
+Para los nodos seguidores, ejecuta comandos similares cambiando el nombre del contenedor y el puerto que se expone. Por ejemplo:
+
+```
+docker run --name zookeeper-follower1 --network zookeeper-net -p 2182:2181 -d zookeeper
+docker run --name zookeeper-follower2 --network zookeeper-net -p 2183:2181 -d zookeeper
+```
+
+Estos comandos ejecutan dos contenedores adicionales llamados "zookeeper-follower1" y "zookeeper-follower2" en la misma red.
+
+Paso 5: Verificar el estado del clúster ZooKeeper
+Puedes verificar el estado del clúster ZooKeeper utilizando el cliente zkCli proporcionado por ZooKeeper. Ejecuta el siguiente comando para acceder a un shell dentro del contenedor líder:
+
+```
+docker exec -it zookeeper-leader zkCli.sh
+```
+
+Dentro del shell de zkCli, puedes ejecutar comandos como "stat" para obtener información sobre el estado del clúster y los nodos líder y seguidor.
+
+```
+[zk: localhost:2181(CONNECTED) 0] stat
+```
+
+
+
+
+Para configurar ZooKeeper para que un nodo seguidor asuma el rol de líder en caso de fallo, debes realizar los siguientes pasos adicionales:
+
+Paso 1: Configurar los archivos de configuración
+Debes crear un archivo de configuración llamado `zoo.cfg` en cada uno de los contenedores de ZooKeeper (tanto el líder como los seguidores). Puedes utilizar el siguiente contenido como ejemplo:
+
+```
+dataDir=/data
+dataLogDir=/datalog
+tickTime=2000
+initLimit=5
+syncLimit=2
+autopurge.snapRetainCount=3
+autopurge.purgeInterval=0
+maxClientCnxns=60
+standaloneEnable=true
+admin.enableServer=true
+clientPort=2181
+server.1=zookeeper-leader:2888:3888
+server.2=zookeeper-follower1:2888:3888
+server.3=zookeeper-follower2:2888:3888
+```
+
+Asegúrate de reemplazar `zookeeper-leader`, `zookeeper-follower1` y `zookeeper-follower2` con los nombres de host o las direcciones IP de tus contenedores respectivos. Ajusta los puertos `2888` y `3888` si es necesario.
+
+Paso 2: Establecer identificadores únicos para cada nodo
+En cada archivo `myid` dentro de la carpeta de datos de ZooKeeper (`/data/myid`), debes establecer un identificador único para cada nodo. En el archivo llamado `myid` en cada contenedor, escribe un número único para cada nodo (por ejemplo, `1` para el líder, `2` para el seguidor1, `3` para el seguidor2).
+
+Paso 3: Reiniciar los contenedores
+
+docker restart zookeeper-leader
+docker restart zookeeper-follower1
+docker restart zookeeper-follower2
+
+Después de realizar las configuraciones anteriores, debes reiniciar los contenedores de ZooKeeper para que carguen las nuevas configuraciones.
+
+Paso 4: Monitorear el clúster ZooKeeper
+Una vez que los contenedores estén en ejecución nuevamente, puedes monitorear el clúster ZooKeeper utilizando el cliente zkCli. Conéctate al líder utilizando el siguiente comando:
+
+```
+docker exec -it zookeeper-leader zkCli.sh
+```
+
+Dentro del shell de zkCli, puedes ejecutar el comando "stat" para verificar el estado del clúster y los nodos.
+
+Paso 5: Simular el fallo del líder
+Para simular el fallo del líder, puedes detener el contenedor del nodo líder. Por ejemplo, puedes usar el siguiente comando:
+
+```
+docker stop zookeeper-leader
+```
+
+ZooKeeper detectará la falta de conexión del líder y realizará una elección para seleccionar un nuevo líder entre los seguidores restantes.
+
+Paso 6: Verificar el nuevo líder
+Después de un breve período de tiempo, uno de los nodos seguidores asumirá el rol de líder. Puedes verificar esto utilizando el comando "stat" nuevamente en el cliente zkCli:
+
+```
+[zk: localhost:2181(CONNECTED) 0] stat
+```
+
+La salida mostrará información actualizada sobre el estado del clúster y el nuevo líder.
+
+Con estos pasos, has configurado ZooKeeper para que un nodo seguidor asuma el rol de líder en caso de fallo del líder actual.
