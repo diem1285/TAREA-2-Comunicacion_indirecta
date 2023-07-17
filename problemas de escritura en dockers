@@ -1,0 +1,32 @@
+podriamos implementar esta solucion el directorio de destino hay que dar accesibilidad en el contenedor zookeeper-follower1 para accede al contenedor zookeeper-follower1 
+podrimos probar el siguiente comando:
+
+bash
+Copy code
+docker exec -it zookeeper-follower1 bash
+
+// Verifica que el directorio de destino ruta/nodo/follower1 exista en el contenedor
+
+bash
+Copy code
+ls -l /ruta/nodo/follower1
+ 
+// Si el directorio no existe, lo debe crear
+
+bash
+Copy code
+mkdir -p /ruta/nodo/follower1
+
+//Dar permisos a la ruta.
+
+//Salir del contenedor
+
+bash
+Copy code
+exit
+
+//Intentar replica
+
+bash
+Copy code
+docker cp archivo_test01.txt zookeeper-follower1:/ruta/nodo/follower1
