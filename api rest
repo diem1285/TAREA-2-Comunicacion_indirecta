@@ -1,0 +1,80 @@
+from flask import Flask, request, jsonify
+import pika
+import socket
+import json
+from kazoo.client import KazooClient
+
+app = Flask(_name_)
+
+cola_mensajes = []
+lider = None
+seguidores = []
+
+# Configuración de RabbitMQ
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+channel = connection.channel()
+channel.queue_declare(queue='cola_mensajes')
+
+# Configuración de ZooKeeper
+zk = KazooClient(hosts='zookeeper:2181')
+zk.start()
+
+def crear_nodo_zk():
+    # Crear un nodo en ZooKeeper para el líder
+    lider_path = '/lider'
+    if not zk.exists(lider_path):
+        zk.create(lider_path, b'', ephemeral=True)
+
+def establecer_lider():
+    global lider
+    global seguidores
+
+    lider_path = '/lider'
+    seguidor_path = '/seguidores'
+    seguidor_data = socket.gethostbyname(socket.gethostname())
+
+    # Registrar al seguidor en ZooKeeper
+    seguidor_seq = zk.create(seguidor_path + "/seguidor-", value=seguidor_data.encode(), sequence=True, ephemeral=True)
+
+    # Obtener la lista de seguidores y establecer al líder
+    seguidores = zk.get_children(seguidor_path)
+    seguidores.sort()
+    if not lider and seguidores:
+        lider = seguidores[0]
+        print("El líder es:", lider)
+
+    # Verificar si el seguidor es el líder
+    if lider and lider_path + '/' + lider == seguidor_seq:
+        print("Soy el líder")
+
+@app.route('/cola_mensajes', methods=['POST'])
+def manejar_cola_mensajes():
+    global lider
+    global seguidores
+
+    formulario = request.json.get('formulario')
+    if lider:
+        # El líder escribe en la cola
+        channel.basic_publish(exchange='', routing_key='cola_mensajes', body=json.dumps(formulario))
+        return jsonify({'message': 'Formulario agregado a la cola de mensajes del líder'}), 201
+    else:
+        return jsonify({'message': 'No hay líder disponible para procesar el formulario'}), 404
+
+@app.route('/responder_cliente', methods=['POST'])
+def responder_cliente():
+    resultado = request.json.get('resultado')
+    # Realizar acciones adicionales según el resultado de la operación
+    return jsonify({'message': 'Respuesta enviada al cliente'}), 200
+
+@app.route('/lider', methods=['GET'])
+def obtener_lider():
+    return jsonify({'lider': lider}), 200
+
+@app.route('/seguidores', methods=['GET'])
+def obtener_seguidores():
+    return jsonify({'seguidores': seguidores}), 200
+
+if _name_ == '_main_':
+    crear_nodo_zk()
+    establecer_lider()
+    app.run(host='0.0.0.0', port=8000)
