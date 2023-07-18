@@ -1,3 +1,5 @@
+Archivo paso a paso para instalación de zookeeper
+
 Para utilizar ZooKeeper en Docker para controlar nodos líder y seguidor, puedes seguir estos pasos:
 
 Paso 1: Instalar Docker
