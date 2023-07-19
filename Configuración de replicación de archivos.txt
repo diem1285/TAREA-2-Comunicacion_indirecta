@@ -1,0 +1,28 @@
+1.- Se debe tener desplegado los nodos contenedores lideres y seguidores
+
+2.- Se deben de actualizar sus repositorios
+apt-get update
+
+3.- Se debe de instalar un editor
+        apt-get install nano
+
+4.- Se debe de instalar python y sus librerías
+
+FROM zookeeper:3.7.0
+RUN apt-get update -y \
+    && apt-get install python3 -y
+
+RUN apt-get install python3-pip -y
+
+RUN python3 --version
+RUN pip3 install kazoo
+
+
+5.- Se deben de crear los directorios en donde se almacenaron los archivos replicados
+
+mkdir /ruta/del/
+
+6.- Se debe de crear el código perteneciente al nodo seguidor con el nombre y comando en el /root
+
+python codigo.py
+
