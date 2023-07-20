@@ -1,0 +1,36 @@
+import requests
+
+def leer_formulario_json(url, formulario_json):
+    try:
+        # Haciendo la solicitud POST a la URL proporcionada con el formulario JSON
+        response = requests.post(url, json=formulario_json)
+
+        # Verificando si la solicitud fue exitosa (código de estado 200)
+        if response.status_code == 200:
+            # Decodificando la respuesta JSON y devolviéndola
+            data = response.json()
+            return data
+        else:
+            print(f"Solicitud fallida con código de estado: {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error en la solicitud: {e}")
+        return None
+
+# URL a la que enviarás la solicitud
+url_postman = "https://ejemplo.com/api/endpoint"
+
+# Formulario JSON que deseas enviar
+formulario_json = {
+    "nombre": "Juan",
+    "edad": 30,
+    "email": "juan@example.com"
+}
+
+# Llamada a la función para enviar el formulario y obtener la respuesta
+resultado = leer_formulario_json(url_postman, formulario_json)
+
+# Verificando si obtuvimos una respuesta válida
+if resultado is not None:
+    print("Respuesta recibida:")
+    print(resultado)
