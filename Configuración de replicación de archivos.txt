@@ -30,3 +30,8 @@ El nombre del código es "api6-zookeeper-leader.py", el cual se encuentra en el 
 
 8.- En los nodos seguidores ae creó el código que recepta los archivos replicados desde el nodo lider. Este código trabaja sobre un socket TCP, el cual al momento de receptar una actualización del archivo formulario.json el procederá también actualizar estos cambios en sus respectivo archivo alojado en su directorio local.
 El nombre del código es "zookeeper_follower-3-replicacion.py" y "zookeeper_follower-4-replicacion.py", el cual se encuentra en el archivo zipeado "PARCIAL-2-PROYECTO"
+
+
+
+
+..
