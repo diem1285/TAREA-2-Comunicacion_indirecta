@@ -25,4 +25,8 @@ mkdir /ruta/del/
 6.- Se editó el código validacion_deduplicacion usado el PARCIAL 1, añadiendo el POST que realiza el client hacia la API desde el HOST, esto con la finalidad de inyectar una coversación en JSON el cual pueda ser interpretado por el API y posteriormente almacenado y replicado por el nodo lider hacia los seguidores.
 El nombre del código es "validacion_deduplicacion2.py", el cual se encuentra en el archivo zipeado "PARCIAL-2-PROYECTO"
 
-7.- 
+7.- Se creó el código llamado "api6-zookeeper-leader.py" que tiene como función receptar las sesiones que provienen del HOST inyectando POST hacia el nodo zookeeper-leader. De manera adicional este código transforma ese POST json en un archivo llamado formulario.json el cual es almacenado en un directorio local de este contenedor /ruta/del/  para posteriormente enviar a replicar a los nodos zookeeper-follower3 y zookeeper-follower4
+El nombre del código es "api6-zookeeper-leader.py", el cual se encuentra en el archivo zipeado "PARCIAL-2-PROYECTO"
+
+8.- En los nodos seguidores ae creó el código que recepta los archivos replicados desde el nodo lider. Este código trabaja sobre un socket TCP, el cual al momento de receptar una actualización del archivo formulario.json el procederá también actualizar estos cambios en sus respectivo archivo alojado en su directorio local.
+El nombre del código es "zookeeper_follower-3-replicacion.py" y "zookeeper_follower-4-replicacion.py", el cual se encuentra en el archivo zipeado "PARCIAL-2-PROYECTO"
