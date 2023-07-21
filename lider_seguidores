@@ -1,0 +1,44 @@
+from kazoo.client import KazooClient, KazooState
+from kazoo.exceptions import NoNodeError
+
+# Configuración de ZooKeeper
+ZOOKEEPER_HOSTS = "localhost:2181"
+ZOOKEEPER_LEADER_NODE = "/myapp/leader"
+ZOOKEEPER_FOLLOWER_PREFIX = "/myapp/follower_"
+
+def check_leader_status(zk, node):
+    try:
+        data, _ = zk.get(node)
+        print(f"Leader node data: {data}")
+    except NoNodeError:
+        print("Leader node not found!")
+        elect_new_leader(zk)
+
+def elect_new_leader(zk):
+    # Obtener la lista de nodos seguidores
+    followers = zk.get_children(ZOOKEEPER_LEADER_NODE)
+
+    if followers:
+        # Ordenar los seguidores y seleccionar el primero como el nuevo líder
+        followers.sort()
+        new_leader = ZOOKEEPER_LEADER_NODE + "/" + followers[0]
+        print(f"Electing new leader: {new_leader}")
+
+        # Registra al nuevo líder en un nuevo nodo
+        zk.create(new_leader, b"", ephemeral=True)
+    else:
+        print("No followers available. Cannot elect new leader.")
+
+def main():
+    zk = KazooClient(hosts=ZOOKEEPER_HOSTS)
+    zk.start()
+
+    try:
+        check_leader_status(zk, ZOOKEEPER_LEADER_NODE)
+    except Exception as e:
+        print(f"Error: {e}")
+
+    zk.stop()
+
+if __name__ == "__main__":
+    main()
