@@ -9,3 +9,11 @@ GRUPO-04-Sistemas-Distribuidos
 
 4 .- DENTRO DEL ARCHIVO ZIPEADO (PARCIAL-2-PROYECTO.zip) se encuentra la documentación en PDF y contiene el link de youtube de los videos de la tarea 4 y 5
 
+5 .- LOS VIDEOS DE LA GRABACIÓN DE LA TAREA 4 Y TAREA 5 SON:
+
+https://youtu.be/m68smLLDbQo
+
+https://youtu.be/acKrp74bSzY
+
+
+
