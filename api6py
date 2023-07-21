@@ -1,0 +1,89 @@
+#codigo almacenado en el nodo lider "zookeeper-leader"
+# ruta /root
+import socket
+import os
+import json
+from flask import Flask, request, jsonify
+
+# Configuración de Flask
+app = Flask(__name__)
+
+@app.route('/api/endpoint', methods=['POST'])
+def endpoint():
+    try:
+        data = request.json
+        # Aquí puedes realizar cualquier procesamiento o lógica con el mensaje JSON recibido
+        # ...
+        print(data)
+
+        # Guardar el contenido recibido en el archivo formulario.json
+        ruta_archivo = '/ruta/del/formulario.json'
+        with open(ruta_archivo, 'a') as file:
+            json.dump(data, file)
+            file.write('\n')  # Agregar una nueva línea para separar los mensajes
+
+        # Este es el bloque que va a enviar a replicar a los nodos seguidores
+
+        # Ruta del archivo que se va a replicar
+        archivo_a_replicar = "/ruta/del/formulario.json"
+
+        # Dirección IP y puertos de los nodos seguidores
+        follower3_node = "zookeeper-follower3"
+        follower3_port = 7000
+
+        follower4_node = "zookeeper-follower4"
+        follower4_port = 7001
+
+        def obtener_contenido_archivo(archivo):
+            try:
+                # Leer el contenido del archivo desde el líder
+                with open(archivo, "rb") as f:
+                    contenido = f.read()
+                return contenido
+
+            except Exception as e:
+                print(f"Error al obtener el contenido del archivo en el líder: {e}")
+                return None
+
+        def replicar_archivo(archivo, contenido, ip_destino, puerto_destino):
+            try:
+                # Crear un socket TCP para la comunicación con el seguidor
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    # Conectar al seguidor
+                    sock.connect((ip_destino, puerto_destino))
+
+                    # Enviar el contenido del archivo al seguidor
+                    sock.sendall(contenido)
+
+            except Exception as e:
+                # print(f"Error al replicar el archivo en el nodo seguidor: {e}")
+                error_message = {'error': str(e)}
+                return jsonify(error_message), 500
+
+        # Obtener el contenido del archivo desde el líder
+        contenido_archivo = obtener_contenido_archivo(archivo_a_replicar)
+
+        if contenido_archivo:
+            # Replicar el archivo en el seguidor zookeeper-follower3
+            replicar_archivo(archivo_a_replicar, contenido_archivo, follower3_node, follower3_port)
+
+            # Replicar el archivo en el seguidor zookeeper-follower4
+            replicar_archivo(archivo_a_replicar, contenido_archivo, follower4_node, follower4_port)
+
+            # Aquí finaliza el código de replicación
+
+            # Ejemplo de respuesta
+            response_data = {'message': '¡Mensaje recibido y procesado exitosamente!'}
+            return jsonify(response_data), 200
+    except Exception as e:
+        error_message = {'error': str(e)}
+        return jsonify(error_message), 500
+
+if __name__ == '__main__':
+    # Verificar si el directorio existe, de lo contrario, crearlo
+    directorio = '/ruta/del/'
+    if not os.path.exists(directorio):
+        os.makedirs(directorio)
+
+    # Iniciar el servidor Flask en el puerto 8181
+    app.run(host='0.0.0.0', port=8181)
