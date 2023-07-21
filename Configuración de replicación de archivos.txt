@@ -18,11 +18,11 @@ RUN python3 --version
 RUN pip3 install kazoo
 
 
-5.- Se deben de crear los directorios en donde se almacenaron los archivos replicados
+5.- Se deben de crear los directorios en todos los nodos contenedores lider-seguidores, en  donde se almacenó el archivo formulario.json
 
 mkdir /ruta/del/
 
-6.- Se debe de crear el código perteneciente al nodo seguidor con el nombre y comando en el /root
+6.- Se editó el código validacion_deduplicacion usado el PARCIAL 1, añadiendo el POST que realiza el client hacia la API desde el HOST, esto con la finalidad de inyectar una coversación en JSON el cual pueda ser interpretado por el API y posteriormente almacenado y replicado por el nodo lider hacia los seguidores.
+El nombre del código es "validacion_deduplicacion2.py", el cual se encuentra en el archivo zipeado "PARCIAL-2-PROYECTO"
 
-python codigo.py
-
+7.- 
